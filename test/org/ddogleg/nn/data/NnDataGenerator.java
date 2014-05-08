@@ -19,14 +19,27 @@
 package org.ddogleg.nn.data;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
 /**
- * Contains algorithms for generating possibly poisonous data for nn-search algorithms.
+ * Contains algorithms for generating data for nn-search algorithms.
  */
 public class NnDataGenerator {
 	private static Random random = new Random(42);
+
+	public static List<double[]> createRandom(int dimensions, int points) {
+		ArrayList<double[]> res = new ArrayList<double[]>(points);
+		for (int i = 0; i < points; i++) {
+			double[] pt = new double[dimensions];
+			for (int j = 0; j < dimensions; j++) {
+				pt[j] = random.nextDouble();
+			}
+			res.add(pt);
+		}
+		return res;
+	}
 
 	public static List<double[]> createLine(int dimensions, int points) {
 		final double[] dir = new double[dimensions], origin = new double[dimensions];
@@ -38,9 +51,9 @@ public class NnDataGenerator {
 		ArrayList<double[]> res = new ArrayList<double[]>(points);
 		for (int i = 0; i < points; i++) {
 			double[] pt = new double[dimensions];
-			double k = random.nextInt(points); // The line is approx. "points" long, 1 point per unit length on average
+			double k = random.nextDouble();
 			for (int j = 0; j < dimensions; j++) {
-				pt[i] = dir[i] * k + origin[i];
+				pt[j] = dir[j] * k + origin[j];
 			}
 			res.add(pt);
 		}
@@ -48,13 +61,28 @@ public class NnDataGenerator {
 	}
 
 	public static List<double[]> createCircle(int points) {
-		double[] origin = {random.nextInt(100), random.nextInt(100) };
-		double r = random.nextDouble() * 100;
+		double[] origin = { 0, 0 };
+		double r = 1;
 		ArrayList<double[]> res = new ArrayList<double[]>(points);
 		for (int i = 0; i < points; i++) {
 			double phi = i / (2 * Math.PI * points);
 			res.add(new double[] { r * Math.cos(phi) + origin[0], r * Math.sin(phi) + origin[1] });
 		}
+		Collections.shuffle(res);
 		return res;
+	}
+
+	public static List<double[]> createPlane(int points) {
+
+		List<double[]> result = new ArrayList<double[]>();
+		double[] v1 = new double[] { random.nextDouble(), random.nextDouble(), random.nextDouble() };
+		double[] v2 = new double[] { random.nextDouble(), random.nextDouble(), random.nextDouble() };
+		for (int i = 0; i < points; i++) {
+			double k = random.nextDouble();
+			double l = random.nextDouble();
+			result.add(new double[] {k * v1[0] + l * v2[0], k * v1[1] + l * v2[0], k * v1[2] + l * v2[2]});
+		}
+
+		return result;
 	}
 }
